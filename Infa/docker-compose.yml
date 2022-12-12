@@ -1,0 +1,63 @@
+version: '3'
+
+services:
+  traefik:
+    image: traefik:v2.9 
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedByDefault=false"
+      - "--entrypoints.web.address=:80"
+      # tls configuration with letsencrypt
+      # - "--entrypoints.websecure.address=:443"
+      # - "--entrypoints.websecure.http.tls.certResolver=myresolver"
+      # - "--certificatesresolvers.myresolver.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory"
+      # - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
+      # - "--certificatesresolvers.myresolver.acme.email=tim.ernst@heig-vd.ch"
+      # - "--certificatesresolvers.myresolver.acme.storage=/traefik/letsencrypt/acme.json"
+      # - "--certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=web"
+      # redirection
+      # - "--entrypoints.web.http.redirections.entrypoint.to=web"
+      # - "--entrypoints.web.http.redirections.entrypoint.scheme=http"
+      #logs
+      - "--log.level=DEBUG"
+      - "--log.filePath=/logs/traefik.log"
+      - "--log.format=json"
+    ports:
+      - "80:80"
+      # - "443:443"
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      # - ./traefik/letsencrypt:/letsencrypt
+      - ./traefik/log:/logs
+
+  dice_api:
+    build: 
+      context: "../Dynamic HTTP Server/"
+      dockerfile: Dockerfile
+    deploy:
+      replicas: 1
+    depends_on:
+      - traefik
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.dice_api.rule=Host(`api.localhost`)"
+      - "traefik.http.routers.dice_api.entrypoints=web, websecure"
+      # - "traefik.http.routers.static.tls=true"
+      # - "traefik.http.routers.static.tls.certresolver=myresolver"
+
+  static:
+    build: 
+      context: "../Static HTTP server/"
+      dockerfile: Dockerfile
+    deploy:
+      replicas: 1
+    depends_on:
+      - traefik
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.static.rule=Host(`static.localhost`)"
+      - "traefik.http.routers.static.entrypoints=web"
+      # - "traefik.http.routers.static.tls=true"
+      # - "traefik.http.routers.static.tls.certresolver=myresolver"
