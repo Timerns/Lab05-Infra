@@ -2,9 +2,14 @@ var elDiceOne       = document.getElementById('dice1');
 var elDiceTwo       = document.getElementById('dice2');
 var elDiceThree     = document.getElementById('dice3');
 
-setInterval(() => {
-  rollDice(Math.floor((Math.random() * 6) + 1), Math.floor((Math.random() * 6) + 1), Math.floor((Math.random() * 6) + 1));
-}, 3000);
+setInterval(loadRandomDiceValue, 3000);
+
+function loadRandomDiceValue() {
+  $.getJSON("http://api.localhost/", function(values) {
+    console.log(values);
+    rollDice(values.dice[0], values.dice[1], values.dice[2])
+  });
+}
 
 function rollDice(diceOne, diceTwo, diceThree) { 
   console.log(diceOne + ' ' + diceTwo + ' ' + diceThree);
