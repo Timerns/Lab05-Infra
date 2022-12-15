@@ -10,3 +10,8 @@ function stopContainer(id) {
     fetch('/stop/' + id)
         .then(data => console.log(data));
 }
+
+function runImage(id) {
+  fetch('/run/' + id)
+      .then(data => console.log(data));
+}
