@@ -11,26 +11,32 @@ The mission is to use different tools to build a complete web infrastructure.
 ---
 ```
 .   
-├── Dynamic HTTP Server          # SMTP Server with all docker files
-├── Infa                 # Store the figures for the README.md
-    ├── traefik
-        ├── log
-├── Load Balancing               # Configuration files for the project
-│   ├── config.properties   # Configuration of the SMTP server and the
-│   │                         the number of pranked groups 
-│   ├── email.utf8          # List of all emails
-│   └── messaages.utf8      # List of possible messages
-├── Static HTTP server                     # Source files of prank project
-├── package-lock.json                 # Maven configuration file
-└── README.md
+├── Dynamic HTTP Server     # Contains the Dynamic server
+├── Infa                    
+    └── traefik
+        └── log             # Store the traefik log
+├── Load Balancing          
+└── Static HTTP server      # Contains the Static server
+    ├── src                 # Store the sources of the static server
+        └── assets          # Store the assets
+            ├── css         # Store the css
+            └── js          # Store the javascript
 ```
 
 ## How to start and configure the project for each step
 ---
+- To start Docker :
+```
+
+```
+- To stop Docker :
+```
+
+```
 
 ### Step 1: Static HTTP server with apache httpd
 ---
-- 
+- Use the **php:7.2-apache** image for docker and copy all the files from my **src** folder in the **/var/www/html/** of the container
 
 ### Step 2: Dynamic HTTP server with express.js
 ---
@@ -47,7 +53,7 @@ The mission is to use different tools to build a complete web infrastructure.
 
 ### Step 4: AJAX requests with JQuery
 ---
-- 
+- Use the **http://api.localhost/** address defined in the precedent step to dynamically fetch the data.
 
 ### Step 5: Load balancing: round-robin and sticky sessions
 ---
