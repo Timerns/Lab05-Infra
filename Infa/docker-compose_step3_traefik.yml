@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  #--------------------------------------------------------------
+  #---------------------------   Traefik   ----------------------
+  #--------------------------------------------------------------
+  traefik:
+    image: traefik:v2.9 
+    command:
+      - "--api.insecure=false"                      # disable the traefik api
+      - "--api.dashboard=false"                     # disable the traefik dashboard
+      - "--providers.docker=true"                   # setup traefik for docker
+      - "--providers.docker.exposedByDefault=false" # force all the service that need
+                                                    # to use traef to add the line
+                                                    # - "traefik.enable=true"
+      # setup the name of the entrypoint to be web for all
+      # trafik entering on port 80
+      - "--entrypoints.web.address=:80"             # setup the name of the entrypoints for the port 80 as web
+      # Logs
+      - "--log.level=ERROR"                         # log all the error
+      - "--log.filePath=/logs/traefik.log"          # log to the /log/traefik.log
+      - "--log.format=json"                         # store the logs in json
+    ports:
+      - "80:80"                                     # port forwarding (Host port):(Container port) 
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock   # the volume where all the docker events are sent
+      - ./traefik/log:/logs                         # stores permanantly the log in the log folder on the host machine 
+ 
+  #--------------------------------------------------------------
+  #---------------------------   Dice API   ---------------------
+  #--------------------------------------------------------------
+  dice_api:
+    build: 
+      context: "../Dynamic HTTP Server/"
+      dockerfile: Dockerfile
+    deploy:
+      replicas: 1
+    depends_on:
+      - traefik    # start the container after that the traefik container is up
+    labels:
+      - "traefik.enable=true"                                                       # notify traefik that it can use the service
+      - "traefik.http.routers.dice_api.rule=Host(`api.localhost`) && Path(`/dice`)" # configure on witch URL you can access the service
+      - "traefik.http.routers.dice_api.entrypoints=web"                             # configure that u need to acces the web entrypoint
+      # middleware
+      - "traefik.http.routers.dice_api.middlewares=suffixremover"             # add the suffixremover middleware to the route           
+      - "traefik.http.middlewares.suffixremover.stripprefix.forceslash=false" # configure the suffixremover to not force the 
+                                                                              # append of a / if it is not ending by a /
+      - "traefik.http.middlewares.suffixremover.stripprefix.prefixes=/dice"   # configure the suffixremover to remove the /dice of the URL
+      
+  #--------------------------------------------------------------
+  #---------------------------   Static   -----------------------
+  #--------------------------------------------------------------
+  static:
+    build: 
+      context: "../Static HTTP server/"
+      dockerfile: Dockerfile
+    deploy:
+      replicas: 1
+    depends_on:
+      - traefik   # start the container after that the traefik container is up
+    labels:
+      - "traefik.enable=true"                                       # notify traefik that it can use the service
+      - "traefik.http.routers.static.rule=Host(`static.localhost`)" # configure on witch URL you can access the service
+      - "traefik.http.routers.static.entrypoints=web"               # configure that u need to acces the web entrypoint

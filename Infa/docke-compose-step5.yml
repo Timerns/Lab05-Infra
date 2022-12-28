@@ -1,0 +1,61 @@
+version: '3.8'
+
+services:
+  #--------------------------------------------------------------
+  #---------------------------   Traefik   ----------------------
+  #--------------------------------------------------------------
+  traefik:
+    image: traefik:v2.9 
+    command:
+      - "--api.insecure=false"                      # disable the traefik api
+      - "--api.dashboard=false"                     # disable the traefik dashboard
+      - "--providers.docker=true"                   # setup traefik for docker
+      - "--providers.docker.exposedByDefault=false" # force all the service that need
+                                                    # to use traef to add the line
+                                                    # - "traefik.enable=true"
+      # setup the name of the entrypoint to be web for all
+      # trafik entering on port 80
+      - "--entrypoints.web.address=:80"             # setup the name of the entrypoints for the port 80 as web
+      # Logs
+      - "--log.level=ERROR"                         # log all the error
+      - "--log.filePath=/logs/traefik.log"          # log to the /log/traefik.log
+      - "--log.format=json"                         # store the logs in json
+    ports:
+      - "80:80"                                     # port forwarding (Host port):(Container port) 
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock   # the volume where all the docker events are sent
+      - ./traefik/log:/logs                         # stores permanantly the log in the log folder on the host machine 
+
+  #--------------------------------------------------------------
+  #---------------   Load Balancer Round Robine   ---------------
+  #--------------------------------------------------------------
+  load_balancer_rr:
+    build: 
+      context: "../Load Balancing/"
+      dockerfile: Dockerfile
+    deploy:
+      replicas: 3
+    depends_on:
+      - traefik   # start the container after that the traefik container is up
+    labels:
+      - "traefik.enable=true"                                             # notify traefik that it can use the service
+      - "traefik.http.routers.load_balancer_rr.rule=Host(`rr.localhost`)" # configure on witch URL you can access the service
+      - "traefik.http.routers.load_balancer_rr.entrypoints=web"           # configure that u need to acces the web entrypoint
+      
+  #--------------------------------------------------------------
+  #-------------------   Load Balancer Sticky   -----------------
+  #--------------------------------------------------------------
+  load_balancer_sticky:
+    build: 
+      context: "../Load Balancing/"
+      dockerfile: Dockerfile
+    deploy:
+      replicas: 3
+    depends_on:
+      - traefik   # start the container after that the traefik container is up
+    labels:
+      - "traefik.enable=true"                                                                             # notify traefik that it can use the service
+      - "traefik.http.routers.load_balancer_sticky.rule=Host(`sticky.localhost`)"                         # configure on witch URL you can access the service
+      - "traefik.http.routers.load_balancer_sticky.entrypoints=web"                                       # configure that u need to acces the web entrypoint
+      - "traefik.http.services.load_balancer_sticky.loadBalancer.sticky.cookie=true"                      # configure the load balancer to be sticky with cookie
+      - "traefik.http.services.load_balancer_sticky.loadBalancer.sticky.cookie.name=sticky_load_balancer" # configure the name of the cookie to be sticky_load_balancer

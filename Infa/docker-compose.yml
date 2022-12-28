@@ -1,35 +1,23 @@
-version: '3'
+version: '3.8'
 
 services:
   traefik:
     image: traefik:v2.9 
     command:
-      - "--api.insecure=true"
+      - "--api.insecure=false"
       - "--providers.docker=true"
       - "--providers.docker.exposedByDefault=false"
       - "--entrypoints.web.address=:80"
-      # tls configuration with letsencrypt
-      # - "--entrypoints.websecure.address=:443"
-      # - "--entrypoints.websecure.http.tls.certResolver=myresolver"
-      # - "--certificatesresolvers.myresolver.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory"
-      # - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
-      # - "--certificatesresolvers.myresolver.acme.email=tim.ernst@heig-vd.ch"
-      # - "--certificatesresolvers.myresolver.acme.storage=/traefik/letsencrypt/acme.json"
-      # - "--certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=web"
-      # redirection
-      # - "--entrypoints.web.http.redirections.entrypoint.to=web"
-      # - "--entrypoints.web.http.redirections.entrypoint.scheme=http"
-      #logs
+      # Logs
       - "--log.level=DEBUG"
       - "--log.filePath=/logs/traefik.log"
       - "--log.format=json"
     ports:
       - "80:80"
-      # - "443:443"
-      - "8080:8080"
+      # Used for the web interface of traefik
+      #- "8080:8080"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      # - ./traefik/letsencrypt:/letsencrypt
       - ./traefik/log:/logs
 
   dice_api:
@@ -44,8 +32,6 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.dice_api.rule=Host(`api.localhost`)"
       - "traefik.http.routers.dice_api.entrypoints=web"
-      # - "traefik.http.routers.static.tls=true"
-      # - "traefik.http.routers.static.tls.certresolver=myresolver"
 
   static:
     build: 
@@ -59,20 +45,44 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.static.rule=Host(`static.localhost`)"
       - "traefik.http.routers.static.entrypoints=web"
-      # - "traefik.http.routers.static.tls=true"
-      # - "traefik.http.routers.static.tls.certresolver=myresolver"
   
-  load_balancer:
+  load_balancer_rr:
     build: 
       context: "../Load Balancing/"
       dockerfile: Dockerfile
     deploy:
-      replicas: 5
+      replicas: 3
     depends_on:
       - traefik
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.load_balancer.rule=Host(`lb.localhost`)"
-      - "traefik.http.routers.load_balancer.entrypoints=web"
-      # - "traefik.http.routers.static.tls=true"
-      # - "traefik.http.routers.static.tls.certresolver=myresolver"
+      - "traefik.http.routers.load_balancer_rr.rule=Host(`lb.localhost`)"
+      - "traefik.http.routers.load_balancer_rr.entrypoints=web"
+  load_balancer_sticky:
+    build: 
+      context: "../Load Balancing/"
+      dockerfile: Dockerfile
+    deploy:
+      replicas: 3
+    depends_on:
+      - traefik
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.load_balancer_sticky.rule=Host(`sticky.localhost`)"
+      - "traefik.http.routers.load_balancer_sticky.entrypoints=web"
+      - "traefik.http.services.load_balancer_sticky.loadBalancer.sticky.cookie=true"
+      - "traefik.http.services.load_balancer_sticky.loadBalancer.sticky.cookie.name=sticky_load_balancer"
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: portainer
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./portainer:/data
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.portainer.rule=Host(`mangement.localhost`)"
+      - "traefik.http.routers.portainer.entrypoints=web"
+      - "traefik.http.services.portainer.loadbalancer.server.port=9000"

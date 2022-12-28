@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  dice_api:                               # part of the container name
+    # find the Dockerfile for the api service
+    build: 
+      context: "../Dynamic HTTP Server/"  # the folder where the Dockerfile is
+      dockerfile: Dockerfile              # the name of the Dockerfile
+    # deploy one instance of the dice_api
+    deploy:
+      replicas: 1
+    ports:
+      - "8080:80"                         # port forwarding Host:Container
+  static:
+    build: 
+      context: "../Static HTTP server/"
+      dockerfile: Dockerfile
+    deploy:
+      replicas: 1
+    ports:
+        - "8081:80"                        # port forwarding Host:Container

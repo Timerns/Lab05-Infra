@@ -13,8 +13,8 @@ The mission is to use different tools to build a complete web infrastructure.
 .   
 ├── Dynamic HTTP Server     # Contains the Dynamic server
 ├── Infa                    
-    └── traefik
-        └── log             # Store the traefik log
+|   └── traefik
+|       └── log             # Store the traefik log
 ├── Load Balancing          
 └── Static HTTP server      # Contains the Static server
     ├── src                 # Store the sources of the static server
@@ -43,7 +43,8 @@ The mission is to use different tools to build a complete web infrastructure.
 - 
 
 ### Step 3: 
----
+For the first step all the configuration for deploying a first version of the infrastructure with a single static and a single dynamic Web server is in the 
+
 #### Docker compose to build the infrastructure
 - 
 #### Reverse proxy with Traefik
