@@ -164,3 +164,14 @@ services:
       - "traefik.http.services.load_balancer_sticky.loadBalancer.sticky.cookie=true"                      # configure the load balancer to be sticky with cookie
       - "traefik.http.services.load_balancer_sticky.loadBalancer.sticky.cookie.name=sticky_load_balancer" # configure the name of the cookie to be sticky_load_balancer
 ```
+
+
+
+-- The end script
+--- links
+  - [The api service](http://api.localhost/dice)
+  - [The static web server](http://static.localhost)
+  - [The sticky load balancer](http://sticky.localhost)
+  - [The round robine service](http://rr.localhost)
+  - [Portnaire](http://management.localhost)
+  - [The own docker mangement app](http://custom.management.localhost)
