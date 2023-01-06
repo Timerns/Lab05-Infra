@@ -7,8 +7,8 @@ services:
   traefik:
     image: traefik:v2.9 
     command:
-      - "--api.insecure=true"                      # disable the traefik api
-      - "--api.dashboard=true"                     # disable the traefik dashboard
+      - "--api.insecure=false"                      # disable the traefik api
+      - "--api.dashboard=false"                     # disable the traefik dashboard
       - "--providers.docker=true"                   # setup traefik for docker
       - "--providers.docker.exposedByDefault=false" # force all the service that need
                                                     # to use traef to add the line
@@ -20,9 +20,9 @@ services:
       - "--log.level=ERROR"                         # log all the error
       - "--log.filePath=/logs/traefik.log"          # log to the /log/traefik.log
       - "--log.format=json"                         # store the logs in json
+    restart: unless-stopped
     ports:
       - "80:80"                                     # port forwarding (Host port):(Container port) 
-      - "8080:8080"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock   # the volume where all the docker events are sent
       - ./traefik/log:/logs                         # stores permanantly the log in the log folder on the host machine 
@@ -34,6 +34,7 @@ services:
     build: 
       context: "../Dynamic HTTP Server/"
       dockerfile: Dockerfile
+    restart: unless-stopped
     deploy:
       replicas: 1
     depends_on:
@@ -52,9 +53,8 @@ services:
   #---------------------------   Static   -----------------------
   #--------------------------------------------------------------
   static:
-    build: 
-      context: "../Static HTTP server/"
-      dockerfile: Dockerfile
+    image: php:7.2-apache
+    restart: unless-stopped
     deploy:
       replicas: 1
     depends_on:
@@ -63,14 +63,15 @@ services:
       - "traefik.enable=true"                                       # notify traefik that it can use the service
       - "traefik.http.routers.static.rule=Host(`static.localhost`)" # configure on witch URL you can access the service
       - "traefik.http.routers.static.entrypoints=web"               # configure that u need to acces the web entrypoint
+    volumes:
+      - "../Static HTTP server/src:/var/www/html/"                                  # the volume where all the docker events are sent     
 
   #--------------------------------------------------------------
   #---------------   Load Balancer Round Robine   ---------------
   #--------------------------------------------------------------
   load_balancer_rr:
-    build: 
-      context: "../Load Balancing/"
-      dockerfile: Dockerfile
+    image: portainer/portainer-ce:latest
+    restart: unless-stopped
     deploy:
       replicas: 3
     depends_on:
@@ -87,6 +88,7 @@ services:
     build: 
       context: "../Load Balancing/"
       dockerfile: Dockerfile
+    restart: unless-stopped
     deploy:
       replicas: 3
     depends_on:
@@ -103,7 +105,6 @@ services:
   #--------------------------------------------------------------
   portainer:
     image: portainer/portainer-ce:latest
-    container_name: portainer
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -126,7 +127,6 @@ services:
       context: "../Management UI/"
       dockerfile: Dockerfile
     restart: unless-stopped
-    container_name: management
     depends_on:
       - traefik   # start the container after that the traefik container is up
     labels:

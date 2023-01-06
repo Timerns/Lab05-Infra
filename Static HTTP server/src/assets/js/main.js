@@ -5,7 +5,7 @@ var elDiceThree     = document.getElementById('dice3');
 setInterval(loadRandomDiceValue, 3000);
 
 function loadRandomDiceValue() {
-  $.getJSON("http://api.localhost/", function(values) {
+  $.getJSON("http://api.localhost/dice", function(values) {
     console.log(values);
     rollDice(values.dice[0], values.dice[1], values.dice[2])
   });
