@@ -15,6 +15,11 @@ that will run your docker compose file and run all configuration in detached mod
 For shutting down the infrastructure you can run the following command:
 > docker compose down
 
+To scale a server with docker compose you can run this command:
+> docker-compose -f filename up -d --scale servicename=number of instance
+if the docker file has the default name you can remove the -f
+> docker-compose up -d --scale dice_api=5
+
 ## Deploy a static web server and a dynamic one
 Followig are all the configurations needed to deploy a first version of the infrastructure with a single static and a single dynamic Web server.
 
