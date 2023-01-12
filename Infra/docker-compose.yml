@@ -64,7 +64,7 @@ services:
       - "traefik.http.routers.static.rule=Host(`static.localhost`)" # configure on witch URL you can access the service
       - "traefik.http.routers.static.entrypoints=web"               # configure that u need to acces the web entrypoint
     volumes:
-      - "../Static HTTP server/src:/var/www/html/"                                  # the volume where all the docker events are sent     
+      - "../Static HTTP server/src:/var/www/html/"                  # the volume where all static file are store   
 
   #--------------------------------------------------------------
   #---------------   Load Balancer Round Robine   ---------------

@@ -233,9 +233,8 @@ services:
   #---------------------------   Static   -----------------------
   #--------------------------------------------------------------
   static:
-    build: 
-      context: "../Static HTTP server/"
-      dockerfile: Dockerfile
+    image: php:7.2-apache
+    restart: unless-stopped
     deploy:
       replicas: 1
     depends_on:
@@ -244,6 +243,8 @@ services:
       - "traefik.enable=true"                                       # notify traefik that it can use the service
       - "traefik.http.routers.static.rule=Host(`static.localhost`)" # configure on witch URL you can access the service
       - "traefik.http.routers.static.entrypoints=web"               # configure that u need to acces the web entrypoint
+    volumes:
+      - "../Static HTTP server/src:/var/www/html/"                  # the volume where all static file are store   
 
   #--------------------------------------------------------------
   #---------------   Load Balancer Round Robine   ---------------
