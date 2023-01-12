@@ -4,26 +4,26 @@
 
 This file comment all the different docker-compose files for each step. 
 
-For all the docker compose file you can run them by running this commande:
+For all the docker compose files you can run them by running this command:
 > docker compose up -d
 
-To start a docker compose file that has an other name, you can start the specifique file using a relative path:
+To start a docker compose file that has another name, you can start the specific file using a relative path:
 
-> docker compose -f .\docke-compose-step5.yml up -d
+> docker compose -f .\docker-compose-step5.yml up -d
 
-that will run your docker compose file run all configuration detached mode (Run containers in the background)
+that will run your docker compose file and run all configuration in detached mode (Run containers in the background)
 
-For shuting down the infrastructure you can run the following comand:
+For shutting down the infrastructure you can run the following command:
 > docker compose down
 
 ## Deploy a static web server and a dynamic one
-For the first step all the configuration for deploying a first version of the infrastructure with a single static and a single dynamic Web server.
+Followig are all the configurations needed to deploy a first version of the infrastructure with a single static and a single dynamic Web server.
 
-When this docker compose file is runed you can accèss this follwing url:
+When this docker compose file is run you can access the following urls:
   - [The api service](http://api.localhost/dice)
   - [The static web server](http://static.localhost)
 ### File 
-the file is located at [./docke-compose-step3.yml](./docke-compose-step3.yml)
+The file is located at [./docker-compose-step3.yml](./docker-compose-step3.yml)
 ```yml
 version: '3.8'
 
@@ -92,15 +92,15 @@ services:
 
 ```
 ---
-## Load balancing with Round Robine and sticky
-To test the load balancing service provided by traefik, we created a service that show the local IP from the contrainer.
-The docker compose file containes 3 services the first is traefik and the two last services are our own made load balancing test service but with somme changes in the configuration.
+## Load balancing with Round Robin and sticky session
+To test the load balancing service provided by traefik, we create a service that shows the local IP from the container.
+The docker compose file contains 3 services : the first is traefik and the two others are our own made load balancing test service but with some changes in the configuration.
 
-When this docker compose file is runed you can accèss this follwing url:
-  - [default configuration] [The round robine service](http://rr.localhost)
+When this docker compose file is run you can access the following urls:
+  - [default configuration] [The round robin service](http://rr.localhost)
   - [The sticky load balancer](http://sticky.localhost)
 ### File 
-the file is located at [./docke-compose.yml](./docke-compose.yml)
+The file is located at [./docker-compose.yml](./docker-compose.yml)
 ```yml
 version: '3.8'
 
@@ -165,19 +165,17 @@ services:
       - "traefik.http.services.load_balancer_sticky.loadBalancer.sticky.cookie.name=sticky_load_balancer" # configure the name of the cookie to be sticky_load_balancer
 ```
 
-
-
 ## The end script
-This script start the whole infrastrucure. The default network is exact configuration that we need (bridge). All the container needs to be in the same network as the traefik container, the need of a second network is not necessary. The contrainers where we need to be careful are all the one's where we mount the /var/run/docker.sock volume. If one of this containers is vulnerable the host systeme can be to.
+This script starts the whole infrastructure. The default network is the exact configuration that we need (bridge). All the containers need to be in the same network as the traefik container, a second network is not necessary. The containers where we need to be careful are all the one's where we mount the /var/run/docker.sock volume. If one of this containers is vulnerable the host system can be too.
 
-We change the static website by giving the docker image a volume that is directly maped on the correct folder. It enable to make live changes on the website.
+We change the static website by giving the docker image a volume that is directly mapped on the correct folder. It enables to make live changes on the website.
 ### links
   - [The api service](http://api.localhost/dice)
   - [The static web server](http://static.localhost)
   - [The sticky load balancer](http://sticky.localhost)
-  - [The round robine service](http://rr.localhost)
-  - [Portnaire](http://portnaire.localhost)
-  - [The own docker mangement app](http://management.localhost)
+  - [The round robin service](http://rr.localhost)
+  - [Portainer](http://portainer.localhost)
+  - [Our own docker mangement app](http://management.localhost)
 
 ### File
 

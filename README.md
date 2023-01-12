@@ -12,12 +12,13 @@ The mission is to use different tools to build a complete web infrastructure.
 ```
 .   
 ├── Dynamic HTTP Server     # Contains the Dynamic server
-├── Infa                    
+├── Infra                    
 |   └── traefik
 |       └── log             # Store the traefik log
-├── Load Balancing          
+├── Load Balancing          # Load balancing
+├── Management UI           # The management UI
 └── Static HTTP server      # Contains the Static server
-    ├── src                 # Store the sources of the static server
+    └── src                 # Store the sources of the static server
         └── assets          # Store the assets
             ├── css         # Store the css
             └── js          # Store the javascript
