@@ -27,7 +27,7 @@ services:
       - ./traefik/log:/logs                         # stores permanantly the log in the log folder on the host machine 
 
   #--------------------------------------------------------------
-  #---------------   Load Balancer Round Robine   ---------------
+  #---------------   Load Balancer Round Robin   ----------------
   #--------------------------------------------------------------
   load_balancer_rr:
     build: 

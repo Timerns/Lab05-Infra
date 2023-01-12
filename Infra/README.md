@@ -1,7 +1,6 @@
 # Docker Compose
 
 ## Description
-
 This file comment all the different docker-compose files for each step. 
 
 For all the docker compose files you can run them by running this command:
@@ -131,7 +130,7 @@ services:
       - ./traefik/log:/logs                         # stores permanantly the log in the log folder on the host machine 
 
   #--------------------------------------------------------------
-  #---------------   Load Balancer Round Robine   ---------------
+  #---------------   Load Balancer Round Robin   ----------------
   #--------------------------------------------------------------
   load_balancer_rr:
     build: 
@@ -247,7 +246,7 @@ services:
       - "../Static HTTP server/src:/var/www/html/"                  # the volume where all static file are store   
 
   #--------------------------------------------------------------
-  #---------------   Load Balancer Round Robine   ---------------
+  #---------------   Load Balancer Round Robin   ----------------
   #--------------------------------------------------------------
   load_balancer_rr:
     build: 
